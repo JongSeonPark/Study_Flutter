@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:Study_Flutter/MyHomePage.dart';
+import 'package:english_words/english_words.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,22 +12,106 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: RandomWords(),
+    );
+  }
+}
+
+class RandomWords extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _RandomwordsState();
+}
+
+class _RandomwordsState extends State<RandomWords> {
+  final _suggestions = <WordPair>[];
+  final _saved = <WordPair>{};
+  final _biggerFont = TextStyle(fontSize: 18.0);
+
+  Widget _buildSuggestions() {
+    int count = 0;
+    return ListView.builder(
+      padding: EdgeInsets.all(16),
+      itemBuilder: (context, i) {
+        print(++count);
+        if (i.isOdd) return Divider();
+
+        final index = i ~/ 2;
+        print("index: " + index.toString());
+        print(context);
+        print(i);
+        if (index >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10));
+        }
+        return _buildRow(_suggestions[index]);
+      },
+    );
+  }
+
+  Widget _buildRow(WordPair pair) {
+    final alreadySaved = _saved.contains(pair);
+    return ListTile(
+      title: Text(
+        pair.asPascalCase,
+        style: _biggerFont,
+      ),
+      trailing: Icon(
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.red : null,
+      ),
+      onTap: () {
+        print("AAAAAAAAAAAAAAAAAAAA");
+        setState(() {
+          if (alreadySaved) {
+            _saved.remove(pair);
+          } else {
+            _saved.add(pair);
+          }
+        });
+      },
+    );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      final tiles = _saved.map((WordPair pair) {
+        return ListTile(
+          title: Text(
+            pair.asPascalCase,
+            style: _biggerFont,
+          ),
+        );
+      });
+      final divided = ListTile.divideTiles(
+        context: context,
+        tiles: tiles,
+      ).toList();
+
+      return Scaffold(
+        appBar: AppBar(title: Text("Saved Suggestion")),
+        body: ListView(
+          children: divided,
+        ),
+      );
+    }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("startup Name Gen"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.list),
+            onPressed: _pushSaved,
+          )
+        ],
+      ),
+      body: _buildSuggestions(),
     );
   }
 }
