@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'NetworkTest.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(NetworkApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -35,13 +34,8 @@ class _RandomwordsState extends State<RandomWords> {
     return ListView.builder(
       padding: EdgeInsets.all(16),
       itemBuilder: (context, i) {
-        print(++count);
         if (i.isOdd) return Divider();
-
         final index = i ~/ 2;
-        print("index: " + index.toString());
-        print(context);
-        print(i);
         if (index >= _suggestions.length) {
           _suggestions.addAll(generateWordPairs().take(10));
         }
@@ -62,7 +56,6 @@ class _RandomwordsState extends State<RandomWords> {
         color: alreadySaved ? Colors.red : null,
       ),
       onTap: () {
-        print("AAAAAAAAAAAAAAAAAAAA");
         setState(() {
           if (alreadySaved) {
             _saved.remove(pair);
